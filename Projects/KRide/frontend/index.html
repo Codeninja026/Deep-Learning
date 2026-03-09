@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poolify - College Ride Share</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font family -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f6f9;
+        }
+        .container {
+            max-width: 1200px;
+        }
+        .btn-primary {
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+        }
+        .card-shadow {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* --- Custom CSS for Animated Vehicles and 1D Road --- */
+        .road-container {
+            height: 80px;
+            background-color: transparent;
+            border: none;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 32px;
+            /* Simple 1D road line */
+            border-bottom: 5px solid #6b7280; 
+        }
+
+        .vehicle {
+            position: absolute;
+            top: 50%;
+            /* Increased size */
+            font-size: 48px; 
+            /* Flip horizontally to face left */
+            transform: translateY(-50%) scaleX(-1); 
+            animation-name: moveLeft;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+            white-space: nowrap;
+        }
+
+        /* --- Custom Wheel SVG Styling (Adjusted for Size/Alignment) --- */
+        .wheel-svg {
+            width: 30px; /* ADJUSTED: Smaller size to match text line height */
+            height: 30px; /* ADJUSTED: Smaller size to match text line height */
+            display: inline-block;
+            vertical-align: middle;
+            margin: 0 -2px; /* ADJUSTED: Less margin for tighter fit */
+            transform: translateY(1px); /* ADJUSTED: Fine-tuned for vertical centering */
+        }
+        /* Rotates the wheels for added effect */
+        .wheel-svg:nth-of-type(1) { transform: translateY(1px) rotate(10deg); } 
+        .wheel-svg:nth-of-type(2) { transform: translateY(1px) rotate(-10deg); }
+
+
+        /* --- Unified Smoke/Exhaust Effect for Cars and Motorcycles --- */
+        .smoke-effect {
+            position: relative;
+        }
+        .smoke-effect::after {
+            content: '';
+            position: absolute;
+            top: 40%; /* Position slightly lower for exhaust */
+            left: 20px; /* Position behind the vehicle */
+            width: 12px;
+            height: 6px;
+            background-color: rgba(0, 0, 0, 0.3); /* Darker gray for smoke/exhaust */
+            border-radius: 6px;
+            animation: smokeTrail 1s ease-out infinite;
+            opacity: 0;
+            z-index: -1;
+        }
+
+        @keyframes smokeTrail {
+            0% {
+                transform: translate(0, -50%) scale(1);
+                opacity: 0.5;
+            }
+            100% {
+                transform: translate(30px, -50%) scale(0.2); /* Move further back, disperse slightly */
+                opacity: 0;
+            }
+        }
+
+        /* Keyframes for vehicle movement (from far right to far left) */
+        @keyframes moveLeft {
+            0% { transform: translate(0, -50%) scaleX(-1); }
+            100% { transform: translate(-2000px, -50%) scaleX(-1); } /* FASTER MOVEMENT */
+        }
+
+        /* Vehicle speed and delay configuration (10 vehicles - adjusted for density/flow) */
+        .car-1 { animation-duration: 10s; left: 100vw; animation-delay: 0s; }
+        .car-2 { animation-duration: 12s; left: 105vw; animation-delay: -2s; }
+        .bike-1 { animation-duration: 8s; left: 110vw; animation-delay: -3s; } /* Motorcycle */
+        .car-3 { animation-duration: 11s; left: 115vw; animation-delay: -5s; }
+        .car-4 { animation-duration: 15s; left: 120vw; animation-delay: -7s; }
+        .car-5 { animation-duration: 9s; left: 125vw; animation-delay: -9s; }
+        .bike-2 { animation-duration: 13s; left: 130vw; animation-delay: -11s; } /* Motorcycle */
+        .car-6 { animation-duration: 7s; left: 135vw; animation-delay: -12s; } /* Fastest */
+        .car-7 { animation-duration: 14s; left: 140vw; animation-delay: -14s; }
+        .car-8 { animation-duration: 10s; left: 145vw; animation-delay: -16s; }
+
+        /* --- End Custom CSS --- */
+    </style>
+</head>
+<body class="min-h-screen p-0">
+
+    <!-- Animated Vehicle Section (Heavy Traffic) -->
+    <div class="road-container">
+        <!-- 10 vehicles with varied emojis and speeds, all using the smoke effect -->
+        <div class="vehicle car-1 smoke-effect">🚗</div>
+        <div class="vehicle car-2 smoke-effect">🚕</div>
+        <div class="vehicle bike-1 smoke-effect">🏍️</div> 
+        <div class="vehicle car-3 smoke-effect">🚙</div>
+        <div class="vehicle car-4 smoke-effect">🚌</div>
+        <div class="vehicle car-5 smoke-effect">🏎️</div>
+        <div class="vehicle bike-2 smoke-effect">🛵</div> 
+        <div class="vehicle car-6 smoke-effect">🚓</div>
+        <div class="vehicle car-7 smoke-effect">🚑</div>
+        <div class="vehicle car-8 smoke-effect">🚐</div>
+    </div>
+    <!-- End Animated Vehicle Section -->
+
+    <div class="container mx-auto px-4 md:px-8">
+        <header class="text-center py-6 mb-8 bg-white rounded-xl card-shadow">
+            <!-- Poolify title with wheel SVG replacing 'oo' -->
+            <h1 class="text-4xl font-extrabold text-indigo-700 flex justify-center items-center">
+                P
+                <!-- Wheel 1 (SVG) -->
+                <svg viewBox="0 0 100 100" class="wheel-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Outer Tire (Dark Gray - ADJUSTED) -->
+                    <circle cx="50" cy="50" r="45" fill="#2c3e50"/> 
+                    <!-- Inner Blue Rim/Spokes -->
+                    <circle cx="50" cy="50" r="38" fill="#4B8BF5"/>
+                    <circle cx="50" cy="50" r="35" fill="white"/>
+                    <!-- Spokes/Holes (Simulating the uploaded image pattern) -->
+                    <path fill="#4B8BF5" d="M50 12 C 40 20, 40 80, 50 88 C 60 80, 60 20, 50 12 M48 50 A 2 2 0 1 0 52 50 A 2 2 0 1 0 48 50 Z"/>
+                    <path fill="#4B8BF5" d="M15 30 C 25 35, 75 35, 85 30 C 75 25, 25 25, 15 30 Z" transform="rotate(20 50 50)"/>
+                    <path fill="#4B8BF5" d="M15 30 C 25 35, 75 35, 85 30 C 75 25, 25 25, 15 30 Z" transform="rotate(50 50 50)"/>
+                    <path fill="#4B8BF5" d="M15 30 C 25 35, 75 35, 85 30 C 75 25, 25 25, 15 30 Z" transform="rotate(80 50 50)"/>
+                    <path fill="#4B8BF5" d="M15 30 C 25 35, 75 35, 85 30 C 75 25, 25 25, 15 30 Z" transform="rotate(110 50 50)"/>
+                    <path fill="#4B8BF5" d="M15 30 C 25 35, 75 35, 85 30 C 75 25, 25 25, 15 30 Z" transform="rotate(140 50 50)"/>
+                    <path fill="#4B8BF5" d="M15 30 C 25 35, 75 35, 85 30 C 75 25, 25 25, 15 30 Z" transform="rotate(170 50 50)"/>
+                    
+                    <path fill="#4B8BF5" d="M15 30 C 25 35, 75 35, 85 30 C 75 25, 25 25, 15 30 Z" transform="rotate(-10 50 50)"/>
+                    <path fill="#4B8BF5" d="M15 30 C 25 35, 75 35, 85 30 C 75 25, 25 25, 15 30 Z" transform="rotate(-40 50 50)"/>
+                    <path fill="#4B8BF5" d="M15 30 C 25 35, 75 35, 85 30 C 75 25, 25 25, 15 30 Z" transform="rotate(-70 50 50)"/>
+                    <path fill="#4B8BF5" d="M15 30 C 25 35, 75 35, 85 30 C 75 25, 25 25, 15 30 Z" transform="rotate(-100 50 50)"/>
+                    <path fill="#4B8BF5" d="M15 30 C 25 35, 75 35, 85 30 C 75 25, 25 25, 15 30 Z" transform="rotate(-130 50 50)"/>
+                    <path fill="#4B8BF5" d="M15 30 C 25 35, 75 35, 85 30 C 75 25, 25 25, 15 30 Z" transform="rotate(-160 50 50)"/>
+                    
+                    <!-- Inner Hub Cap -->
+                    <circle cx="50" cy="50" r="10" fill="#4B8BF5"/>
+                </svg>
+
+                <!-- Wheel 2 (SVG) -->
+                <svg viewBox="0 0 100 100" class="wheel-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Outer Tire (Dark Gray - ADJUSTED) -->
+                    <circle cx="50" cy="50" r="45" fill="#2c3e50"/>
+                    <!-- Inner Blue Rim/Spokes -->
+                    <circle cx="50" cy="50" r="38" fill="#4B8BF5"/>
+                    <circle cx="50" cy="50" r="35" fill="white"/>
+                    <!-- Spokes/Holes (Simulating the uploaded image pattern) -->
+                    <path fill="#4B8BF5" d="M50 12 C 40 20, 40 80, 50 88 C 60 80, 60 20, 50 12 M48 50 A 2 2 0 1 0 52 50 A 2 2 0 1 0 48 50 Z"/>
+                    <path fill="#4B8BF5" d="M15 30 C 25 35, 75 35, 85 30 C 75 25, 25 25, 15 30 Z" transform="rotate(20 50 50)"/>
+                    <path fill="#4B8BF5" d="M15 30 C 25 35, 75 35, 85 30 C 75 25, 25 25, 15 30 Z" transform="rotate(50 50 50)"/>
+                    <path fill="#4B8BF5" d="M15 30 C 25 35, 75 35, 85 30 C 75 25, 25 25, 15 30 Z" transform="rotate(80 50 50)"/>
+                    <path fill="#4B8BF5" d="M15 30 C 25 35, 75 35, 85 30 C 75 25, 25 25, 15 30 Z" transform="rotate(110 50 50)"/>
+                    <path fill="#4B8BF5" d="M15 30 C 25 35, 75 35, 85 30 C 75 25, 25 25, 15 30 Z" transform="rotate(140 50 50)"/>
+                    <path fill="#4B8BF5" d="M15 30 C 25 35, 75 35, 85 30 C 75 25, 25 25, 15 30 Z" transform="rotate(170 50 50)"/>
+                    
+                    <path fill="#4B8BF5" d="M15 30 C 25 35, 75 35, 85 30 C 75 25, 25 25, 15 30 Z" transform="rotate(-10 50 50)"/>
+                    <path fill="#4B8BF5" d="M15 30 C 25 35, 75 35, 85 30 C 75 25, 25 25, 15 30 Z" transform="rotate(-40 50 50)"/>
+                    <path fill="#4B8BF5" d="M15 30 C 25 35, 75 35, 85 30 C 75 25, 25 25, 15 30 Z" transform="rotate(-70 50 50)"/>
+                    <path fill="#4B8BF5" d="M15 30 C 25 35, 75 35, 85 30 C 75 25, 25 25, 15 30 Z" transform="rotate(-100 50 50)"/>
+                    <path fill="#4B8BF5" d="M15 30 C 25 35, 75 35, 85 30 C 75 25, 25 25, 15 30 Z" transform="rotate(-130 50 50)"/>
+                    <path fill="#4B8BF5" d="M15 30 C 25 35, 75 35, 85 30 C 75 25, 25 25, 15 30 Z" transform="rotate(-160 50 50)"/>
+
+                    <!-- Inner Hub Cap -->
+                    <circle cx="50" cy="50" r="10" fill="#4B8BF5"/>
+                </svg>
+                LIFY.
+            </h1>
+            <p class="text-lg text-gray-500 mt-2">Secure Ride Sharing for the College Community</p>
+        </header>
+
+        <!-- Global Status/User Panel -->
+        <div id="status-panel" class="bg-indigo-100 border-l-4 border-indigo-500 text-indigo-700 p-4 mb-8 rounded-lg card-shadow">
+            <p class="font-semibold text-sm">
+                👋 **User Status:** <span id="user-info">Please register below to get started.</span>
+            </p>
+        </div>
+        
+        <!-- Registration/Login Panel -->
+        <div id="auth-panel" class="bg-white p-6 rounded-xl mb-8 card-shadow">
+            <h2 class="text-2xl font-bold mb-4 text-gray-700">1. Identify Yourself (College ID)</h2>
+            <form id="register-form" class="flex flex-col md:flex-row gap-4">
+                <input type="email" id="college-email" placeholder="Your College Email (e.g., user@college.edu)" required
+                       class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                <button type="submit" 
+                        class="btn-primary bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg whitespace-nowrap">
+                    Register / Sign In
+                </button>
+            </form>
+            <p class="mt-2 text-sm text-gray-500">
+                *Use "driver@college.edu" to register as a driver for testing.
+            </p>
+        </div>
+
+
+        <!-- Main Application Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Column 1: Offer a Ride (Driver) -->
+            <div id="offer-ride-card" class="lg:col-span-1 bg-white p-6 rounded-xl card-shadow h-fit" style="display:none;">
+                <h2 class="text-2xl font-bold mb-4 text-green-700">2. Offer a Ride</h2>
+                <form id="offer-ride-form" class="space-y-4">
+                    <input type="text" id="ride-origin" placeholder="Origin" required
+                           class="w-full p-3 border border-gray-300 rounded-lg">
+                    <input type="text" id="ride-destination" placeholder="Destination" required
+                           class="w-full p-3 border border-gray-300 rounded-lg">
+                    <label for="departure-time" class="block text-sm font-medium text-gray-700">Departure Time</label>
+                    <input type="datetime-local" id="departure-time" required
+                           class="w-full p-3 border border-gray-300 rounded-lg">
+                    <input type="number" id="seats-available" placeholder="Seats Available (1-7)" min="1" max="7" required
+                           class="w-full p-3 border border-gray-300 rounded-lg">
+                    <button type="submit" 
+                            class="btn-primary w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg">
+                        Publish Ride
+                    </button>
+                </form>
+
+                <h3 class="text-xl font-bold mt-8 mb-4 text-gray-700">Your Offered Rides</h3>
+                <div id="my-offered-rides-list" class="space-y-3">
+                    <p class="text-gray-500 text-sm">No rides offered yet.</p>
+                </div>
+            </div>
+
+            <!-- Column 2 & 3: Find and Book a Ride (Passenger) -->
+            <div class="lg:col-span-2 bg-white p-6 rounded-xl card-shadow">
+                <h2 class="text-2xl font-bold mb-4 text-indigo-700">3. Find a Ride</h2>
+                
+                <div id="ride-list" class="space-y-4">
+                    <!-- Rides will be rendered here by JavaScript -->
+                    <p class="text-gray-500 text-center py-8" id="loading-message">Loading available rides...</p>
+                </div>
+
+                <h3 class="text-xl font-bold mt-8 mb-4 text-gray-700">Your Booked Rides</h3>
+                <div id="my-booked-rides-list" class="space-y-3">
+                    <p class="text-gray-500 text-sm">No rides booked yet.</p>
+                </div>
+            </div>
+            
+        </div>
+        
+    </div>
+
+    <!-- Custom Message Modal -->
+    <div id="message-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-2xl w-full max-w-sm">
+            <h3 id="modal-title" class="text-xl font-bold mb-4 text-gray-800"></h3>
+            <p id="modal-body" class="mb-6 text-gray-600"></p>
+            <button onclick="document.getElementById('message-modal').classList.add('hidden')"
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-lg btn-primary">
+                Close
+            </button>
+        </div>
+    </div>
+
+
+    <script>
+        // --- Configuration and State ---
+        // Assuming FastAPI runs on the default port
+        const API_BASE_URL = 'http://127.0.0.1:8000';
+        
+        let currentUserId = null;
+        let currentUserEmail = null;
+        let isDriver = false;
+
+        const registerForm = document.getElementById('register-form');
+        const offerRideForm = document.getElementById('offer-ride-form');
+        const rideListContainer = document.getElementById('ride-list');
+        const userInfoElement = document.getElementById('user-info');
+        const offerRideCard = document.getElementById('offer-ride-card');
+        const myOfferedRidesList = document.getElementById('my-offered-rides-list');
+        const myBookedRidesList = document.getElementById('my-booked-rides-list');
+        const loadingMessage = document.getElementById('loading-message');
+        const messageModal = document.getElementById('message-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+
+        // --- Utility Functions ---
+
+        /** Shows a custom message modal instead of alert() */
+        function showModal(title, message) {
+            modalTitle.textContent = title;
+            modalBody.textContent = message;
+            messageModal.classList.remove('hidden');
+        }
+
+        /** Formats ISO time string to a readable format */
+        function formatTime(isoString) {
+            const date = new Date(isoString);
+            const options = { 
+                month: 'short', 
+                day: 'numeric', 
+                hour: 'numeric', 
+                minute: '2-digit', 
+                hour12: true 
+            };
+            return date.toLocaleString(undefined, options);
+        }
+
+        /** Handles API fetch requests with basic error handling and exponential backoff */
+        async function fetchWithRetry(url, options = {}, retries = 3) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.detail || `HTTP error! Status: ${response.status}`);
+                    }
+                    return response;
+                } catch (error) {
+                    console.error(`Attempt ${i + 1} failed:`, error.message);
+                    if (i === retries - 1) throw error; // Re-throw final error
+                    
+                    const delay = Math.pow(2, i) * 1000 + Math.random() * 1000; // Exponential backoff with jitter
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+        }
+
+
+        // --- Authentication (Registration/Sign In) ---
+
+        /** Updates the UI based on the current user state */
+        function updateUI() {
+            if (currentUserId) {
+                userInfoElement.innerHTML = `<span class="font-bold">${currentUserEmail}</span> (ID: ${currentUserId}). ${isDriver ? '<span class="text-green-600 font-bold">You are a Driver.</span>' : 'You are a Passenger.'}`;
+                document.getElementById('auth-panel').classList.add('hidden');
+                offerRideCard.style.display = isDriver ? 'block' : 'none';
+                
+                // Fetch user-specific data
+                fetchRides();
+                fetchMyBookings();
+                if (isDriver) {
+                    fetchMyOfferedRides();
+                }
+            } else {
+                userInfoElement.textContent = "Please register or sign in using your college email.";
+                document.getElementById('auth-panel').classList.remove('hidden');
+                offerRideCard.style.display = 'none';
+                rideListContainer.innerHTML = '<p class="text-gray-500 text-center py-8">Please sign in to view available rides.</p>';
+            }
+        }
+
+        /** Handles registration form submission */
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('college-email').value.trim();
+            
+            try {
+                const response = await fetchWithRetry(`${API_BASE_URL}/users/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ college_email: email })
+                });
+
+                const user = await response.json();
+                
+                currentUserId = user.id;
+                currentUserEmail = user.college_email;
+                isDriver = user.is_driver;
+
+                showModal("Success!", `Welcome, ${user.college_email}. Your User ID is ${currentUserId}. You are now signed in.`);
+                updateUI();
+            } catch (error) {
+                showModal("Registration Failed", error.message);
+            }
+        });
+
+        // --- Driver Functions ---
+
+        /** Handles offering a new ride */
+        offerRideForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const origin = document.getElementById('ride-origin').value;
+            const destination = document.getElementById('ride-destination').value;
+            const departureTimeStr = document.getElementById('departure-time').value;
+            const seats = parseInt(document.getElementById('seats-available').value, 10);
+            
+            // Convert local datetime input to UTC format expected by the backend
+            const departureTime = new Date(departureTimeStr).toISOString();
+
+            try {
+                const response = await fetchWithRetry(`${API_BASE_URL}/rides`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        driver_id: currentUserId,
+                        origin: origin,
+                        destination: destination,
+                        departure_time: departureTime,
+                        seats_available: seats
+                    })
+                });
+
+                const newRide = await response.json();
+                showModal("Ride Published!", `Your ride from ${newRide.origin} to ${newRide.destination} has been published successfully.`);
+                offerRideForm.reset();
+                fetchRides(); // Refresh all rides list
+                fetchMyOfferedRides(); // Refresh driver's list
+
+            } catch (error) {
+                showModal("Publication Failed", error.message);
+            }
+        });
+
+        /** Fetches and renders the driver's offered rides */
+        async function fetchMyOfferedRides() {
+            if (!currentUserId || !isDriver) return;
+
+            try {
+                const response = await fetchWithRetry(`${API_BASE_URL}/rides/my_offered_rides/${currentUserId}`);
+                const rides = await response.json();
+
+                if (rides.length === 0) {
+                    myOfferedRidesList.innerHTML = '<p class="text-gray-500 text-sm italic">You have not offered any rides yet.</p>';
+                    return;
+                }
+
+                myOfferedRidesList.innerHTML = rides.map(ride => `
+                    <div class="p-3 border border-gray-200 rounded-lg bg-green-50">
+                        <p class="font-semibold text-green-700">${ride.origin} &rarr; ${ride.destination}</p>
+                        <p class="text-xs text-gray-600">
+                            Departs: ${formatTime(ride.departure_time)} |
+                            Booked: ${ride.seats_taken}/${ride.seats_available}
+                        </p>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                myOfferedRidesList.innerHTML = `<p class="text-red-500 text-sm">Error loading offered rides.</p>`;
+                console.error("Error fetching offered rides:", error);
+            }
+        }
+
+
+        // --- Passenger Functions ---
+
+        /** Handles joining a ride */
+        async function handleJoinRide(rideId) {
+            if (!currentUserId) {
+                showModal("Action Required", "Please sign in first to book a ride.");
+                return;
+            }
+
+            if (isDriver) {
+                showModal("Action Blocked", "Drivers cannot book seats on other rides in this simplified app model.");
+                return;
+            }
+
+            try {
+                const response = await fetchWithRetry(`${API_BASE_URL}/rides/${rideId}/join`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ passenger_id: currentUserId })
+                });
+
+                const booking = await response.json();
+                showModal("Booking Confirmed!", `You have successfully booked a seat on Ride ID: ${booking.ride_id}.`);
+                fetchRides(); // Refresh available rides
+                fetchMyBookings(); // Refresh passenger's list
+            } catch (error) {
+                showModal("Booking Failed", error.message);
+            }
+        }
+
+        /** Fetches and renders rides booked by the current passenger */
+        async function fetchMyBookings() {
+            if (!currentUserId) return;
+
+            try {
+                const response = await fetchWithRetry(`${API_BASE_URL}/rides/my_bookings/${currentUserId}`);
+                const rides = await response.json();
+
+                if (rides.length === 0) {
+                    myBookedRidesList.innerHTML = '<p class="text-gray-500 text-sm italic">You have not booked any rides yet.</p>';
+                    return;
+                }
+
+                myBookedRidesList.innerHTML = rides.map(ride => `
+                    <div class="p-3 border border-gray-200 rounded-lg bg-indigo-50">
+                        <p class="font-semibold text-indigo-700">${ride.origin} &rarr; ${ride.destination}</p>
+                        <p class="text-xs text-gray-600">
+                            Departs: ${formatTime(ride.departure_time)} | 
+                            Driver ID: ${ride.driver_id}
+                        </p>
+                    </div>
+                `).join('');
+            } catch (error) {
+                myBookedRidesList.innerHTML = `<p class="text-red-500 text-sm">Error loading booked rides.</p>`;
+                console.error("Error fetching my bookings:", error);
+            }
+        }
+
+
+        // --- General Ride Listings ---
+
+        /** Fetches all available rides and updates the UI */
+        async function fetchRides() {
+            if (!currentUserId) {
+                loadingMessage.style.display = 'none';
+                return;
+            }
+            loadingMessage.style.display = 'block';
+            rideListContainer.innerHTML = '';
+            
+            try {
+                const response = await fetchWithRetry(`${API_BASE_URL}/rides`);
+                const rides = await response.json();
+                
+                loadingMessage.style.display = 'none';
+
+                if (rides.length === 0) {
+                    rideListContainer.innerHTML = '<p class="text-gray-500 text-center py-8">No available rides found.</p>';
+                    return;
+                }
+
+                rideListContainer.innerHTML = rides.map(ride => {
+                    const seatsLeft = ride.seats_available - ride.seats_taken;
+                    const isFull = seatsLeft <= 0;
+                    
+                    return `
+                        <div class="bg-gray-50 p-4 border border-gray-200 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center card-shadow">
+                            <!-- Ride Info -->
+                            <div class="flex-grow mb-3 md:mb-0">
+                                <p class="text-xl font-bold text-gray-800">${ride.origin} <span class="text-indigo-500 mx-2">&rarr;</span> ${ride.destination}</p>
+                                <p class="text-sm text-gray-600 mt-1">
+                                    <span class="font-semibold">Departs:</span> ${formatTime(ride.departure_time)}
+                                </p>
+                                <p class="text-sm text-gray-600">
+                                    <span class="font-semibold">Seats:</span> ${seatsLeft} available / ${ride.seats_available} total
+                                </p>
+                            </div>
+                            <!-- Action Button -->
+                            <button onclick="handleJoinRide(${ride.id})"
+                                    ${isFull || isDriver ? 'disabled' : ''}
+                                    class="w-full md:w-auto btn-primary font-semibold py-2 px-4 rounded-lg text-sm
+                                        ${isFull || isDriver ? 'bg-gray-400 text-gray-700 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700 text-white'}">
+                                ${isDriver ? 'Driver' : isFull ? 'Full' : 'Join Ride'}
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                loadingMessage.style.display = 'none';
+                rideListContainer.innerHTML = `<p class="text-red-500 text-center py-8">Failed to load rides. Ensure the backend server is running: ${error.message}</p>`;
+                console.error("Error fetching rides:", error);
+            }
+        }
+
+        // --- Initialization ---
+
+        // Initial call to set up the UI state
+        window.onload = () => {
+            updateUI();
+        };
+
+    </script>
+</body>
+</html>
